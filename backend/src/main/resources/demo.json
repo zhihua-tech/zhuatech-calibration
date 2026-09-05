@@ -1,0 +1,174 @@
+[
+  {
+    "op": "create",
+    "as": "standard",
+    "module": "standards",
+    "data": {
+      "name": "标准压力源",
+      "certificate": "CAL-STD-001",
+      "validUntil": "$today+30",
+      "unit": "kPa"
+    }
+  },
+  {
+    "op": "create",
+    "as": "expired",
+    "module": "standards",
+    "data": {
+      "name": "过期标准压力源",
+      "certificate": "CAL-EXPIRED",
+      "validUntil": "$today-1",
+      "unit": "kPa"
+    }
+  },
+  {
+    "op": "create",
+    "as": "instrument",
+    "module": "instruments",
+    "data": {
+      "name": "生产线压力表",
+      "serial": "CAL-SN001",
+      "owner": "设备工程部",
+      "unit": "kPa",
+      "cycleDays": 90,
+      "dueDate": "$today"
+    }
+  },
+  {
+    "op": "create",
+    "as": "badJob",
+    "module": "jobs",
+    "data": {
+      "instrument": "$instrument.id",
+      "standard": "$expired.id",
+      "performedAt": "$today",
+      "tolerance": 0.2
+    }
+  },
+  {
+    "op": "create",
+    "as": "job",
+    "module": "jobs",
+    "data": {
+      "instrument": "$instrument.id",
+      "standard": "$standard.id",
+      "performedAt": "$today",
+      "tolerance": 0.2
+    }
+  },
+  {
+    "op": "action",
+    "target": "job",
+    "action": "start",
+    "data": {}
+  },
+  {
+    "op": "create",
+    "as": "point1",
+    "module": "readings",
+    "data": {
+      "job": "$job.id",
+      "point": "P1",
+      "nominal": 10,
+      "measured": 10.1
+    }
+  },
+  {
+    "op": "create",
+    "as": "point2",
+    "module": "readings",
+    "data": {
+      "job": "$job.id",
+      "point": "P2",
+      "nominal": 20,
+      "measured": 20.4
+    }
+  },
+  {
+    "op": "action",
+    "target": "job",
+    "action": "evaluate",
+    "data": {}
+  },
+  {
+    "op": "action",
+    "target": "job",
+    "action": "approve",
+    "data": {},
+    "role": "reviewer"
+  },
+  {
+    "op": "create",
+    "as": "retest",
+    "module": "jobs",
+    "data": {
+      "instrument": "$instrument.id",
+      "standard": "$standard.id",
+      "performedAt": "$today",
+      "tolerance": 0.2
+    }
+  },
+  {
+    "op": "action",
+    "target": "retest",
+    "action": "start",
+    "data": {}
+  },
+  {
+    "op": "create",
+    "as": "rp1",
+    "module": "readings",
+    "data": {
+      "job": "$retest.id",
+      "point": "P1",
+      "nominal": 10,
+      "measured": 10.1
+    }
+  },
+  {
+    "op": "create",
+    "as": "rp2",
+    "module": "readings",
+    "data": {
+      "job": "$retest.id",
+      "point": "P2",
+      "nominal": 20,
+      "measured": 20.15
+    }
+  },
+  {
+    "op": "action",
+    "target": "retest",
+    "action": "evaluate",
+    "data": {}
+  },
+  {
+    "op": "action",
+    "target": "retest",
+    "action": "reject",
+    "data": {},
+    "role": "reviewer"
+  },
+  {
+    "op": "action",
+    "target": "retest",
+    "action": "evaluate",
+    "data": {}
+  },
+  {
+    "op": "action",
+    "target": "retest",
+    "action": "approve",
+    "data": {},
+    "role": "reviewer"
+  },
+  {
+    "op": "action",
+    "target": "badJob",
+    "action": "cancel",
+    "data": {
+      "reason": "错误标准器选择，撤销任务"
+    },
+    "role": "reviewer"
+  }
+]

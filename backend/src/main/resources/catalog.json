@@ -1,0 +1,377 @@
+{
+  "slug": "calibration",
+  "pkg": "calibration",
+  "name": "知华计量校准管理",
+  "subtitle": "器具台账、量值溯源、测量判定与证书",
+  "accent": "#216b78",
+  "modules": [
+    {
+      "key": "standards",
+      "label": "标准器具",
+      "description": "标准器的证书有效期与量值溯源",
+      "initial": "ACTIVE",
+      "editable": true,
+      "creatable": true,
+      "fields": [
+        {
+          "key": "name",
+          "label": "标准器名称",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "certificate",
+          "label": "证书编号",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "validUntil",
+          "label": "有效期至",
+          "type": "date",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "unit",
+          "label": "计量单位",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        }
+      ],
+      "actions": []
+    },
+    {
+      "key": "instruments",
+      "label": "计量器具",
+      "description": "器具责任人、周期和校准有效期",
+      "initial": "ACTIVE",
+      "editable": true,
+      "creatable": true,
+      "fields": [
+        {
+          "key": "name",
+          "label": "器具名称",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "serial",
+          "label": "序列号",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "owner",
+          "label": "责任人",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "unit",
+          "label": "计量单位",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "cycleDays",
+          "label": "校准周期天数",
+          "type": "integer",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": "1",
+          "max": "1000000"
+        },
+        {
+          "key": "dueDate",
+          "label": "当前到期日",
+          "type": "date",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        }
+      ],
+      "actions": [
+        {
+          "key": "quarantine",
+          "label": "隔离停用",
+          "from": [
+            "ACTIVE"
+          ],
+          "to": "QUARANTINED",
+          "role": "OPERATOR",
+          "separate": false,
+          "fields": []
+        },
+        {
+          "key": "retire",
+          "label": "报废",
+          "from": [
+            "ACTIVE",
+            "QUARANTINED"
+          ],
+          "to": "RETIRED",
+          "role": "REVIEWER",
+          "separate": false,
+          "fields": []
+        }
+      ]
+    },
+    {
+      "key": "jobs",
+      "label": "校准任务",
+      "description": "标准器有效性、测量点与双人复核",
+      "initial": "DRAFT",
+      "editable": true,
+      "creatable": true,
+      "fields": [
+        {
+          "key": "instrument",
+          "label": "受检器具",
+          "type": "ref",
+          "required": true,
+          "ref": "instruments",
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "standard",
+          "label": "标准器",
+          "type": "ref",
+          "required": true,
+          "ref": "standards",
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "performedAt",
+          "label": "校准日期",
+          "type": "date",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "tolerance",
+          "label": "允许绝对误差",
+          "type": "number",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": "0.0001",
+          "max": "999999999"
+        }
+      ],
+      "actions": [
+        {
+          "key": "start",
+          "label": "开始校准",
+          "from": [
+            "DRAFT"
+          ],
+          "to": "RUNNING",
+          "role": "OPERATOR",
+          "separate": false,
+          "fields": []
+        },
+        {
+          "key": "evaluate",
+          "label": "计算判定",
+          "from": [
+            "RUNNING"
+          ],
+          "to": "REVIEW",
+          "role": "OPERATOR",
+          "separate": false,
+          "fields": []
+        },
+        {
+          "key": "approve",
+          "label": "复核签发",
+          "from": [
+            "REVIEW"
+          ],
+          "to": "APPROVED",
+          "role": "REVIEWER",
+          "separate": true,
+          "fields": []
+        },
+        {
+          "key": "reject",
+          "label": "退回重测",
+          "from": [
+            "REVIEW"
+          ],
+          "to": "RUNNING",
+          "role": "REVIEWER",
+          "separate": true,
+          "fields": []
+        },
+        {
+          "key": "cancel",
+          "label": "撤销校准任务",
+          "from": [
+            "DRAFT",
+            "RUNNING",
+            "REVIEW"
+          ],
+          "to": "CANCELLED",
+          "fields": [
+            {
+              "key": "reason",
+              "label": "撤销原因",
+              "type": "text",
+              "required": true,
+              "ref": null,
+              "options": [],
+              "min": null,
+              "max": null
+            }
+          ],
+          "role": "REVIEWER",
+          "separate": true
+        }
+      ]
+    },
+    {
+      "key": "readings",
+      "label": "测量点",
+      "description": "按标称值、实测值计算绝对误差",
+      "initial": "DRAFT",
+      "editable": true,
+      "creatable": true,
+      "fields": [
+        {
+          "key": "job",
+          "label": "校准任务",
+          "type": "ref",
+          "required": true,
+          "ref": "jobs",
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "point",
+          "label": "测量点编号",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "nominal",
+          "label": "标称值",
+          "type": "number",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": "-999999",
+          "max": "999999999"
+        },
+        {
+          "key": "measured",
+          "label": "实测值",
+          "type": "number",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": "-999999",
+          "max": "999999999"
+        }
+      ],
+      "actions": []
+    },
+    {
+      "key": "certificates",
+      "label": "校准证书",
+      "description": "审批生成不可改写的结果快照与溯源证书",
+      "initial": "ISSUED",
+      "editable": false,
+      "creatable": false,
+      "fields": [
+        {
+          "key": "job",
+          "label": "校准任务",
+          "type": "ref",
+          "required": true,
+          "ref": "jobs",
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "instrument",
+          "label": "器具",
+          "type": "ref",
+          "required": true,
+          "ref": "instruments",
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "result",
+          "label": "校准结论",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "validUntil",
+          "label": "下次到期",
+          "type": "date",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        }
+      ],
+      "actions": []
+    }
+  ]
+}
